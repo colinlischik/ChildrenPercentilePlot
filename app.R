@@ -4,14 +4,12 @@ library(readxl)
 library(data.table)
 library(plotly)
 library(lubridate)
-# Install and load the RColorBrewer package
-if (!requireNamespace("RColorBrewer", quietly = TRUE)) {
-  install.packages("RColorBrewer")
-}
 library(RColorBrewer)
+library(shinythemes)
 
 # Define UI
 ui <- fluidPage(
+  theme = shinytheme("darkly"),
   titlePanel("Child Growth Data"),
   sidebarLayout(
     sidebarPanel(
@@ -112,15 +110,15 @@ server <- function(input, output, session) {
     x_range_weight <- c(min(rawdata_weight$date[rawdata_weight$type == "value"], na.rm = TRUE) - 1, max(rawdata_weight$date[rawdata_weight$type == "value"], na.rm = TRUE) + 1)
     y_range_weight <- c(min(rawdata_weight$value[rawdata_weight$type == "value"], na.rm = TRUE) - 0.100, max(rawdata_weight$value[rawdata_weight$type == "value"], na.rm = TRUE) + 0.100)
     
-    plotly_weight = plot_ly() %>%
+    plotly_weight <- plot_ly() %>%
       add_trace(
         data = rawdata_weight[rawdata_weight$type == "value",],
         x = ~date,
         y = ~value,
         type = "scatter",
         mode = "lines+markers",
-        marker = list(color = "black"),
-        line = list(color = "black"),
+        marker = list(color = "white"),  # Adjust marker color for visibility
+        line = list(color = "white"),    # Adjust line color for visibility
         name = "value"
       ) %>%
       add_trace(
@@ -133,16 +131,18 @@ server <- function(input, output, session) {
         name = ~type
       ) %>%
       layout(
-        title = paste("weight of", childname),
+        title = paste("Weight of", childname),
         xaxis = list(
-          title = "date",
+          title = "Date",
           range = x_range_weight
         ),
         yaxis = list(
-          title = "weight [kg]",
+          title = "Weight [kg]",
           range = y_range_weight
         ),
-        colorway = brewer.pal(8, "YlOrRd"),
+        paper_bgcolor = "rgba(0,0,0,0)",   # Set background color to transparent
+        plot_bgcolor = "rgba(0,0,0,0)",    # Set plot area color to transparent
+        colorway = brewer.pal(8, "Spectral"),  # Use a different color palette
         showlegend = TRUE
       )
     
@@ -155,15 +155,15 @@ server <- function(input, output, session) {
     x_range_head <- c(min(rawdata_head$date[rawdata_head$type == "value"], na.rm = TRUE) - 1, max(rawdata_head$date[rawdata_head$type == "value"], na.rm = TRUE) + 1)
     y_range_head <- c(min(rawdata_head$value[rawdata_head$type == "value"], na.rm = TRUE) - 1, max(rawdata_head$value[rawdata_head$type == "value"], na.rm = TRUE) + 1)
     
-    plotly_head = plot_ly() %>%
+    plotly_head <- plot_ly() %>%
       add_trace(
         data = rawdata_head[rawdata_head$type == "value",],
         x = ~date,
         y = ~value,
         type = "scatter",
         mode = "lines+markers",
-        marker = list(color = "black"),
-        line = list(color = "black"),
+        marker = list(color = "white"),  # Adjust marker color for visibility
+        line = list(color = "white"),    # Adjust line color for visibility
         name = "value"
       ) %>%
       add_trace(
@@ -176,16 +176,18 @@ server <- function(input, output, session) {
         name = ~type
       ) %>%
       layout(
-        title = paste("head circumference of", childname),
+        title = paste("Head Circumference of", childname),
         xaxis = list(
-          title = "date",
+          title = "Date",
           range = x_range_head
         ),
         yaxis = list(
-          title = "head circumference [cm]",
+          title = "Head Circumference [cm]",
           range = y_range_head
         ),
-        colorway = brewer.pal(8, "YlOrRd"),
+        paper_bgcolor = "rgba(0,0,0,0)",   # Set background color to transparent
+        plot_bgcolor = "rgba(0,0,0,0)",    # Set plot area color to transparent
+        colorway = brewer.pal(8, "Spectral"),  # Use a different color palette
         showlegend = TRUE
       )
     
@@ -198,15 +200,15 @@ server <- function(input, output, session) {
     x_range_height <- c(min(rawdata_height$date[rawdata_height$type == "value"], na.rm = TRUE) - 1, max(rawdata_height$date[rawdata_height$type == "value"], na.rm = TRUE) + 1)
     y_range_height <- c(min(rawdata_height$value[rawdata_height$type == "value"], na.rm = TRUE) - 5, max(rawdata_height$value[rawdata_height$type == "value"], na.rm = TRUE) + 5)
     
-    plotly_height = plot_ly() %>%
+    plotly_height <- plot_ly() %>%
       add_trace(
         data = rawdata_height[rawdata_height$type == "value",],
         x = ~date,
         y = ~value,
         type = "scatter",
         mode = "lines+markers",
-        marker = list(color = "black"),
-        line = list(color = "black"),
+        marker = list(color = "white"),  # Adjust marker color for visibility
+        line = list(color = "white"),    # Adjust line color for visibility
         name = "value"
       ) %>%
       add_trace(
@@ -219,16 +221,18 @@ server <- function(input, output, session) {
         name = ~type
       ) %>%
       layout(
-        title = paste("height of", childname),
+        title = paste("Height of", childname),
         xaxis = list(
-          title = "date",
+          title = "Date",
           range = x_range_height
         ),
         yaxis = list(
-          title = "height [cm]",
+          title = "Height [cm]",
           range = y_range_height
         ),
-        colorway = brewer.pal(8, "YlOrRd"),
+        paper_bgcolor = "rgba(0,0,0,0)",   # Set background color to transparent
+        plot_bgcolor = "rgba(0,0,0,0)",    # Set plot area color to transparent
+        colorway = brewer.pal(8, "Spectral"),  # Use a different color palette
         showlegend = TRUE
       )
     
