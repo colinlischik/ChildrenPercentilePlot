@@ -28,7 +28,7 @@ ui <- fluidPage(
         tabPanel("Height", plotlyOutput("plot_height"), style = "height: 100vh; overflow-y: scroll;")
       ),
       div(
-        style = "position: fixed; bottom: 0; width: 100%; background-color: #f8f9fa; padding: 10px;",
+        style = "position: fixed; bottom: 0; width: 100%; padding: 10px;",
         div(
           "Created by Colin Lischik ", style = "margin-right: 20px; font-weight: bold;",
           tags$a(href = "https://www.lischik.eu", "(lischik.eu)")
@@ -144,12 +144,12 @@ server <- function(input, output, session) {
         xaxis = list(
           title = "Date",
           range = x_range_weight,
-          gridcolor = "rgba(5, 5, 5, 0.2)"
+          gridcolor = "rgba(100, 100, 100, 0.5)"
         ),
         yaxis = list(
           title = "Weight [kg]",
           range = y_range_weight,
-          gridcolor = "rgba(5, 5, 5, 0.2)"
+          gridcolor = "rgba(100, 100, 100, 0.5)"
         ),
         paper_bgcolor = "rgba(0,0,0,0)",   # Set background color to transparent
         plot_bgcolor = "rgba(0,0,0,0)",    # Set plot area color to transparent
@@ -190,11 +190,13 @@ server <- function(input, output, session) {
         title = paste("Head Circumference of", childname),
         xaxis = list(
           title = "Date",
-          range = x_range_head
+          range = x_range_head,
+          gridcolor = "rgba(100, 100, 100, 0.5)"
         ),
         yaxis = list(
           title = "Head Circumference [cm]",
-          range = y_range_head
+          range = y_range_head,
+          gridcolor = "rgba(100, 100, 100, 0.5)"
         ),
         paper_bgcolor = "rgba(0,0,0,0)",   # Set background color to transparent
         plot_bgcolor = "rgba(0,0,0,0)",    # Set plot area color to transparent
@@ -235,11 +237,13 @@ server <- function(input, output, session) {
         title = paste("Height of", childname),
         xaxis = list(
           title = "Date",
-          range = x_range_height
+          range = x_range_height,
+          gridcolor = "rgba(100, 100, 100, 0.5)"
         ),
         yaxis = list(
           title = "Height [cm]",
-          range = y_range_height
+          range = y_range_height,
+          gridcolor = "rgba(100, 100, 100, 0.5)"
         ),
         paper_bgcolor = "rgba(0,0,0,0)",   # Set background color to transparent
         plot_bgcolor = "rgba(0,0,0,0)",    # Set plot area color to transparent
