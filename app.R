@@ -23,9 +23,18 @@ ui <- fluidPage(
     ),
     mainPanel(
       tabsetPanel(
-        tabPanel("Weight", plotlyOutput("plot_weight", height = "100%")),
-        tabPanel("Head Circumference", plotlyOutput("plot_head", height = "100%")),
-        tabPanel("Height", plotlyOutput("plot_height", height = "100%"))
+        tabPanel("Weight", plotlyOutput("plot_weight"), style = "height: 100vh; overflow-y: scroll;"),
+        tabPanel("Head Circumference", plotlyOutput("plot_head"), style = "height: 100vh; overflow-y: scroll;"),
+        tabPanel("Height", plotlyOutput("plot_height"), style = "height: 100vh; overflow-y: scroll;")
+      ),
+      div(
+        style = "position: fixed; bottom: 0; width: 100%; background-color: #f8f9fa; padding: 10px;",
+        div(
+          "Created by Colin Lischik ", style = "margin-right: 20px; font-weight: bold;",
+          tags$a(href = "https://www.lischik.eu", "(lischik.eu)")
+        ),
+        tags$a(href = "https://github.com/colinlischik/ChildrenPercentilePlot", "GitHub Repository (incl. template and how-to)", style = "margin-right: 20px;"),
+        tags$a(href = "https://github.com/colinlischik/ChildrenPercentilePlot/blob/main/test%20data/template.xlsx", "raw data template", style = "margin-right: 20px;")
       )
     )
   )
@@ -134,11 +143,13 @@ server <- function(input, output, session) {
         title = paste("Weight of", childname),
         xaxis = list(
           title = "Date",
-          range = x_range_weight
+          range = x_range_weight,
+          gridcolor = "rgba(5, 5, 5, 0.2)"
         ),
         yaxis = list(
           title = "Weight [kg]",
-          range = y_range_weight
+          range = y_range_weight,
+          gridcolor = "rgba(5, 5, 5, 0.2)"
         ),
         paper_bgcolor = "rgba(0,0,0,0)",   # Set background color to transparent
         plot_bgcolor = "rgba(0,0,0,0)",    # Set plot area color to transparent
