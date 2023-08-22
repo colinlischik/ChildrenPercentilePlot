@@ -6,6 +6,8 @@ library(plotly)
 library(lubridate)
 library(RColorBrewer)
 library(shinythemes)
+library(fontawesome)
+library(rlang)
 
 # Define UI
 ui <- fluidPage(

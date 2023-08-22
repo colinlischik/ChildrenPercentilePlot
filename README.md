@@ -13,3 +13,6 @@ Currently available data:
   
 It may be enhanced by adding additional data for your country, if you are supplying the data in a format that can be ingested.
 
+## RShiny App
+The deployed RShiny App can be found here: https://colinlischik.shinyapps.io/ChildrenPercentilePlot/
+

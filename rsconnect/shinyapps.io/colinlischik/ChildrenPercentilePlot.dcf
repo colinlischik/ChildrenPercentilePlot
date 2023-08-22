@@ -1,0 +1,13 @@
+name: ChildrenPercentilePlot
+title: ChildrenPercentilePlot
+username: colinlischik
+account: colinlischik
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 9655838
+bundleId: 7597783
+url: https://colinlischik.shinyapps.io/ChildrenPercentilePlot/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: .RData|LICENSE|README.md|test data/template.xlsx|test data/test data - boy.xlsx|test data/test data - girl.xlsx
