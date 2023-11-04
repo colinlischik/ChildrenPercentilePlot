@@ -15,12 +15,27 @@ ui <- fluidPage(
   titlePanel("Child Growth Data"),
   sidebarLayout(
     sidebarPanel(
+      radioButtons("comparisonType", "Select Comparison Type:",
+                   choices = c("Single child with percentiles", "2 Children comparison"),
+                   selected = "Single child with percentiles"
+      ),
       fileInput("dataFile", "Upload Raw Data (xlsx)"),
       selectInput("dateColumn", "Select Date Column:", NULL),
       selectInput("weightColumn", "Select Weight Column:", NULL),
       selectInput("heightColumn", "Select Height Column:", NULL),
       selectInput("headColumn", "Select Head Circumference Column:", NULL),
-      selectInput("percentileSelect", "Select Percentile:", choices = c("DE - Robert-Koch-Institut"), selected = "DE - Robert-Koch-Institut"),
+      conditionalPanel(
+        condition = "input.comparisonType == 'Single child with percentiles'",
+        selectInput("percentileSelect", "Select Percentile:", choices = c("DE - Robert-Koch-Institut"), selected = "DE - Robert-Koch-Institut")
+      ),
+      conditionalPanel(
+        condition = "input.comparisonType == '2 Children comparison'",
+        fileInput("dataFile2", "Upload Second Raw Data (xlsx)"),
+        selectInput("dateColumn2", "Select Date Column:", NULL),
+        selectInput("weightColumn2", "Select Weight Column:", NULL),
+        selectInput("heightColumn2", "Select Height Column:", NULL),
+        selectInput("headColumn2", "Select Head Circumference Column:", NULL)
+      ),
       actionButton("plotButton", "Plot")
     ),
     mainPanel(
@@ -52,6 +67,16 @@ server <- function(input, output, session) {
     updateSelectInput(session, "weightColumn", choices = column_names, selected = column_names[2])
     updateSelectInput(session, "heightColumn", choices = column_names, selected = column_names[3])
     updateSelectInput(session, "headColumn", choices = column_names, selected = column_names[4])
+  })
+  
+  observeEvent(input$dataFile2, {
+    req(input$dataFile2)
+    data <- read_excel(input$dataFile2$datapath)
+    column_names <- colnames(data)
+    updateSelectInput(session, "dateColumn2", choices = column_names)
+    updateSelectInput(session, "weightColumn2", choices = column_names, selected = column_names[2])
+    updateSelectInput(session, "heightColumn2", choices = column_names, selected = column_names[3])
+    updateSelectInput(session, "headColumn2", choices = column_names, selected = column_names[4])
   })
   
   observeEvent(input$plotButton, {
