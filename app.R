@@ -82,65 +82,127 @@ server <- function(input, output, session) {
   observeEvent(input$plotButton, {
     req(input$dataFile, input$dateColumn, input$headColumn, input$weightColumn, input$heightColumn)
     
-    # Read raw data
-    rawdata <- read_excel(input$dataFile$datapath)
-    rawdata$Date <- as.Date(rawdata[[input$dateColumn]])
-    rawdata$`head circumference` <- as.numeric(rawdata[[input$headColumn]])
-    rawdata$weight <- as.numeric(rawdata[[input$weightColumn]])
-    rawdata$height <- as.numeric(rawdata[[input$heightColumn]])
+    #Prepare the title for the x-axis
+    xaxistitle = "Date"
     
-    # set parameters from meta data
-    metadata <- read_excel(input$dataFile$datapath, sheet = "meta data")
-    childname = metadata$value[metadata$key == "name"]
-    birthdate <- as.Date(as.numeric(metadata$value[metadata$key == "birthdate"]), origin = "1899-12-30")
-    sex = metadata$value[metadata$key == "sex"]
-    
-    # load percentiles
-    if (sex == "F" && identical(input$percentileSelect, "DE - Robert-Koch-Institut")) {
-      file_path <- "percentiles/DE - Robert-Koch-Institut - girls.xlsx"
-    } else if (sex == "M" && identical(input$percentileSelect, "DE - Robert-Koch-Institut")) {
-      file_path <- "percentiles/DE - Robert-Koch-Institut - boys.xlsx"
+    # Check the selected comparison type
+    if (input$comparisonType == "Single child with percentiles") {
+      # Read raw data
+      rawdata <- read_excel(input$dataFile$datapath)
+      rawdata$Date <- as.Date(rawdata[[input$dateColumn]])
+      rawdata$`head circumference` <- as.numeric(rawdata[[input$headColumn]])
+      rawdata$weight <- as.numeric(rawdata[[input$weightColumn]])
+      rawdata$height <- as.numeric(rawdata[[input$heightColumn]])
+      
+      # set parameters from meta data
+      metadata <- read_excel(input$dataFile$datapath, sheet = "meta data")
+      childname = metadata$value[metadata$key == "name"]
+      birthdate <- as.Date(as.numeric(metadata$value[metadata$key == "birthdate"]), origin = "1899-12-30")
+      sex = metadata$value[metadata$key == "sex"]
+      
+      # load percentiles
+      if (sex == "F" && identical(input$percentileSelect, "DE - Robert-Koch-Institut")) {
+        file_path <- "percentiles/DE - Robert-Koch-Institut - girls.xlsx"
+      } else if (sex == "M" && identical(input$percentileSelect, "DE - Robert-Koch-Institut")) {
+        file_path <- "percentiles/DE - Robert-Koch-Institut - boys.xlsx"
+      }
+      percentile_head = read_excel(file_path, sheet = "percentile head circumference")
+      percentile_weight = read_excel(file_path, sheet = "percentile weight")
+      percentile_height = read_excel(file_path, sheet = "percentile height")
+      
+      # prepare raw data
+      rawdata$age = time_length(interval(birthdate, rawdata$Datum), "years")
+      
+      # prepare weight raw data
+      percentile_weight$date = birthdate + months(percentile_weight$age_months)
+      percentile_weight = percentile_weight[, -which(names(percentile_weight) %in% c("age", "Alter", "age_months"))]
+      percentile_weight <- melt(setDT(percentile_weight), id.vars = c("date"), variable.name = "type")
+      
+      rawdata_weight = data.frame(value = rawdata$weight, date = rawdata$Date, type = rep("value", length(rawdata$Date)))
+      rawdata_weight = rawdata_weight[!is.na(rawdata_weight$value),]
+      rawdata_weight$value = rawdata_weight$value/1000
+      rawdata_weight = rbind(rawdata_weight, percentile_weight)
+      rawdata_weight$type = factor(rawdata_weight$type, levels = c("value", "P3", "P10", "P25", "P50", "P75", "P90", "P97"))
+      rawdata_weight$date = as.Date(rawdata_weight$date)
+      
+      # prepare head raw data
+      percentile_head$date = birthdate + months(percentile_head$age_months)
+      percentile_head = percentile_head[, -which(names(percentile_head) %in% c("age", "Alter", "age_months"))]
+      percentile_head <- melt(setDT(percentile_head), id.vars = c("date"), variable.name = "type")
+      
+      rawdata_head = data.frame(value = rawdata$`head circumference`, date = rawdata$Date, type = rep("value", length(rawdata$Date)))
+      rawdata_head = rawdata_head[!is.na(rawdata_head$value),]
+      rawdata_head = rbind(rawdata_head, percentile_head)
+      rawdata_head$type = factor(rawdata_head$type, levels = c("value", "P3", "P10", "P25", "P50", "P75", "P90", "P97"))
+      rawdata_head$date = as.Date(rawdata_head$date)
+      
+      #prepare height raw data
+      percentile_height$date = birthdate + months(percentile_height$age_months)
+      percentile_height = percentile_height[, -which(names(percentile_height) %in% c("age", "Alter", "age_months"))]
+      percentile_height <- melt(setDT(percentile_height), id.vars = c("date"), variable.name = "type")
+      
+      rawdata_height = data.frame(value = rawdata$height, date = rawdata$Date, type = rep("value", length(rawdata$Date)))
+      rawdata_height = rawdata_height[!is.na(rawdata_height$value),]
+      rawdata_height = rbind(rawdata_height, percentile_height)
+      rawdata_height$type = factor(rawdata_height$type, levels = c("value", "P3", "P10", "P25", "P50", "P75", "P90", "P97"))
+      rawdata_height$date = as.Date(rawdata_height$date)
+    } else {
+      # Read raw data 1
+      rawdata <- read_excel(input$dataFile$datapath)
+      rawdata$Date <- as.Date(rawdata[[input$dateColumn]])
+      rawdata$`head circumference` <- as.numeric(rawdata[[input$headColumn]])
+      rawdata$weight <- as.numeric(rawdata[[input$weightColumn]])
+      rawdata$height <- as.numeric(rawdata[[input$heightColumn]])
+      
+      # set parameters from meta data 1
+      metadata <- read_excel(input$dataFile$datapath, sheet = "meta data")
+      childname = metadata$value[metadata$key == "name"]
+      childname1 = metadata$value[metadata$key == "name"]
+      birthdate <- as.Date(as.numeric(metadata$value[metadata$key == "birthdate"]), origin = "1899-12-30")
+      sex = metadata$value[metadata$key == "sex"]
+      
+      # Calculate age
+      rawdata$age <- as.numeric(difftime(rawdata$Date, birthdate, units = "weeks")) / 52.1775
+      
+      # Read raw data 2
+      rawdata2 <- read_excel(input$dataFile2$datapath)
+      rawdata2$Date <- as.Date(rawdata2[[input$dateColumn2]])
+      rawdata2$`head circumference` <- as.numeric(rawdata2[[input$headColumn2]])
+      rawdata2$weight <- as.numeric(rawdata2[[input$weightColumn2]])
+      rawdata2$height <- as.numeric(rawdata2[[input$heightColumn2]])
+      
+      # set parameters from meta data 2
+      metadata2 <- read_excel(input$dataFile2$datapath, sheet = "meta data")
+      childname = paste0(childname, " & ", metadata2$value[metadata2$key == "name"])
+      childname2 = metadata2$value[metadata2$key == "name"]
+      birthdate2 <- as.Date(as.numeric(metadata2$value[metadata2$key == "birthdate"]), origin = "1899-12-30")
+      sex2 = metadata$value[metadata2$key == "sex"]
+      
+      # Calculate age
+      rawdata2$age <- as.numeric(difftime(rawdata2$Date, birthdate2, units = "weeks")) / 52.1775
+      
+      rawdata_weight = data.frame(value = rawdata$weight, date = rawdata$age, type = rep(childname1, length(rawdata$age)))
+      rawdata_weight2 = data.frame(value = rawdata2$weight, date = rawdata2$age, type = rep(childname2, length(rawdata2$age)))
+      rawdata_weight = rbind(rawdata_weight, rawdata_weight2)
+      rawdata_weight = rawdata_weight[!is.na(rawdata_weight$value),]
+      rawdata_weight$value = rawdata_weight$value/1000
+      rawdata_weight$type = factor(rawdata_weight$type, levels = c(childname1, childname2))
+      
+      rawdata_head = data.frame(value = rawdata$`head circumference`, date = rawdata$age, type = rep(childname1, length(rawdata$age)))
+      rawdata_head2 = data.frame(value = rawdata2$`head circumference`, date = rawdata2$age, type = rep(childname2, length(rawdata2$age)))
+      rawdata_head = rbind(rawdata_head, rawdata_head2)
+      rawdata_head = rawdata_head[!is.na(rawdata_head$value),]
+      rawdata_head$type = factor(rawdata_head$type, levels = c(childname1, childname2))
+
+      rawdata_height = data.frame(value = rawdata$height, date = rawdata$age, type = rep(childname1, length(rawdata$age)))
+      rawdata_height2 = data.frame(value = rawdata2$height, date = rawdata2$age, type = rep(childname2, length(rawdata2$age)))
+      rawdata_height = rbind(rawdata_height, rawdata_height2)
+      rawdata_height = rawdata_height[!is.na(rawdata_height$value),]
+      rawdata_height$type = factor(rawdata_height$type, levels = c(childname1, childname2))
+      
+      #Overwrite the x-axis title
+      xaxistitle = "Age [years]"
     }
-    percentile_head = read_excel(file_path, sheet = "percentile head circumference")
-    percentile_weight = read_excel(file_path, sheet = "percentile weight")
-    percentile_height = read_excel(file_path, sheet = "percentile height")
-    
-    # prepare raw data
-    rawdata$age = time_length(interval(birthdate, rawdata$Datum), "years")
-    
-    # prepare weight raw data
-    percentile_weight$date = birthdate + months(percentile_weight$age_months)
-    percentile_weight = percentile_weight[, -which(names(percentile_weight) %in% c("age", "Alter", "age_months"))]
-    percentile_weight <- melt(setDT(percentile_weight), id.vars = c("date"), variable.name = "type")
-    
-    rawdata_weight = data.frame(value = rawdata$weight, date = rawdata$Date, type = rep("value", length(rawdata$Date)))
-    rawdata_weight = rawdata_weight[!is.na(rawdata_weight$value),]
-    rawdata_weight$value = rawdata_weight$value/1000
-    rawdata_weight = rbind(rawdata_weight, percentile_weight)
-    rawdata_weight$type = factor(rawdata_weight$type, levels = c("value", "P3", "P10", "P25", "P50", "P75", "P90", "P97"))
-    rawdata_weight$date = as.Date(rawdata_weight$date)
-    
-    # prepare head raw data
-    percentile_head$date = birthdate + months(percentile_head$age_months)
-    percentile_head = percentile_head[, -which(names(percentile_head) %in% c("age", "Alter", "age_months"))]
-    percentile_head <- melt(setDT(percentile_head), id.vars = c("date"), variable.name = "type")
-    
-    rawdata_head = data.frame(value = rawdata$`head circumference`, date = rawdata$Date, type = rep("value", length(rawdata$Date)))
-    rawdata_head = rawdata_head[!is.na(rawdata_head$value),]
-    rawdata_head = rbind(rawdata_head, percentile_head)
-    rawdata_head$type = factor(rawdata_head$type, levels = c("value", "P3", "P10", "P25", "P50", "P75", "P90", "P97"))
-    rawdata_head$date = as.Date(rawdata_head$date)
-    
-    #prepare height raw data
-    percentile_height$date = birthdate + months(percentile_height$age_months)
-    percentile_height = percentile_height[, -which(names(percentile_height) %in% c("age", "Alter", "age_months"))]
-    percentile_height <- melt(setDT(percentile_height), id.vars = c("date"), variable.name = "type")
-    
-    rawdata_height = data.frame(value = rawdata$height, date = rawdata$Date, type = rep("value", length(rawdata$Date)))
-    rawdata_height = rawdata_height[!is.na(rawdata_height$value),]
-    rawdata_height = rbind(rawdata_height, percentile_height)
-    rawdata_height$type = factor(rawdata_height$type, levels = c("value", "P3", "P10", "P25", "P50", "P75", "P90", "P97"))
-    rawdata_height$date = as.Date(rawdata_height$date)
     
     # Calculate the range of available data
     x_range_weight <- c(min(rawdata_weight$date[rawdata_weight$type == "value"], na.rm = TRUE) - 1, max(rawdata_weight$date[rawdata_weight$type == "value"], na.rm = TRUE) + 1)
@@ -169,7 +231,7 @@ server <- function(input, output, session) {
       layout(
         title = paste("Weight of", childname),
         xaxis = list(
-          title = "Date",
+          title = xaxistitle,
           range = x_range_weight,
           gridcolor = "rgba(100, 100, 100, 0.5)"
         ),
@@ -216,7 +278,7 @@ server <- function(input, output, session) {
       layout(
         title = paste("Head Circumference of", childname),
         xaxis = list(
-          title = "Date",
+          title = xaxistitle,
           range = x_range_head,
           gridcolor = "rgba(100, 100, 100, 0.5)"
         ),
@@ -263,7 +325,7 @@ server <- function(input, output, session) {
       layout(
         title = paste("Height of", childname),
         xaxis = list(
-          title = "Date",
+          title = xaxistitle,
           range = x_range_height,
           gridcolor = "rgba(100, 100, 100, 0.5)"
         ),
